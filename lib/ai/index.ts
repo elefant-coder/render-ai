@@ -1,6 +1,7 @@
 import { GenerationRequest, GeneratedImage, AIModel } from '@/types/generation';
 import { generateWithFlux } from './flux';
 import { generateWithImagen, isImagen4Available } from './imagen';
+import { generateWithNanoBanana, isNanoBananaAvailable } from './nano-banana';
 
 interface GenerationOutput {
   images: GeneratedImage[];
@@ -20,7 +21,11 @@ export async function generateImages(
 
   // 自動選択の場合、利用可能なモデルから選択
   if (selectedModel === 'auto') {
-    // Imagen 4 が利用可能ならそちらを優先（高品質）
+    // Nano Banana Pro が利用可能ならそちらを優先（最高品質）
+    if (isNanoBananaAvailable()) {
+      return generateWithNanoBanana(request);
+    }
+    // Imagen 4 が利用可能なら次に優先
     if (isImagen4Available()) {
       return generateWithImagen(request);
     }
@@ -29,6 +34,12 @@ export async function generateImages(
   }
 
   switch (selectedModel) {
+    case 'nano-banana':
+      if (!isNanoBananaAvailable()) {
+        throw new Error('Nano Banana Pro is not configured. Please set FAL_KEY.');
+      }
+      return generateWithNanoBanana(request);
+
     case 'imagen4':
       if (!isImagen4Available()) {
         throw new Error('Imagen 4 is not configured. Please set GOOGLE_CLOUD_PROJECT_ID and GOOGLE_APPLICATION_CREDENTIALS.');
@@ -39,11 +50,11 @@ export async function generateImages(
       return generateWithFlux(request);
     
     case 'gemini':
-      // TODO: Gemini 3 Pro Image 実装後に追加
-      throw new Error('Gemini 3 Pro Image is not yet implemented. Please use FLUX 2 or Imagen 4.');
+      // Gemini は Nano Banana Pro で代替
+      return generateWithNanoBanana(request);
     
     default:
-      return generateWithFlux(request);
+      return generateWithNanoBanana(request);
   }
 }
 
@@ -57,6 +68,12 @@ export function getAvailableModels(): { id: AIModel; name: string; available: bo
       name: '自動選択', 
       available: true,
       description: '最適なモデルを自動選択'
+    },
+    { 
+      id: 'nano-banana', 
+      name: 'Nano Banana Pro', 
+      available: isNanoBananaAvailable(),
+      description: 'Gemini 3 Pro Image - 最高品質の建築パース生成'
     },
     { 
       id: 'imagen4', 
@@ -73,8 +90,8 @@ export function getAvailableModels(): { id: AIModel; name: string; available: bo
     { 
       id: 'gemini', 
       name: 'Gemini 3 Pro', 
-      available: false,
-      description: '近日実装予定'
+      available: isNanoBananaAvailable(),
+      description: 'Nano Banana Pro として利用可能'
     },
   ];
 }
@@ -82,3 +99,4 @@ export function getAvailableModels(): { id: AIModel; name: string; available: bo
 export { buildPrompt, buildNegativePrompt, buildSummary } from './prompt-builder';
 export { generateWithFlux } from './flux';
 export { generateWithImagen, isImagen4Available } from './imagen';
+export { generateWithNanoBanana, isNanoBananaAvailable } from './nano-banana';

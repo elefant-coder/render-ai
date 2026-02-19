@@ -33,7 +33,7 @@ const GenerationSchema = z.object({
   options: z.object({
     count: z.union([z.literal(1), z.literal(4)]),
     resolution: z.enum(['sd', 'hd', '4k']),
-    model: z.enum(['auto', 'imagen4', 'flux2', 'gemini']),
+    model: z.enum(['auto', 'imagen4', 'flux2', 'gemini', 'nano-banana']),
   }),
 });
 

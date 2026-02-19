@@ -50,7 +50,7 @@ export type Season = 'spring' | 'summer' | 'autumn' | 'winter';
 export type Resolution = 'sd' | 'hd' | '4k';
 
 // AIモデル
-export type AIModel = 'auto' | 'imagen4' | 'flux2' | 'gemini';
+export type AIModel = 'auto' | 'imagen4' | 'flux2' | 'gemini' | 'nano-banana';
 
 // 生成ステータス
 export type GenerationStatus = 'pending' | 'processing' | 'completed' | 'failed';
